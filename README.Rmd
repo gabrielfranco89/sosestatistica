@@ -1,0 +1,43 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+![SOS Estatística](https://sosestatistica.com.br/wp-content/uploads/2018/08/logoSOSnew.png)
+
+Pacote em R com funções utilizadas nos relatórios da consultoria estatística [SOS Estatística](https://www.sosestatistica.com.br)
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+## Instalação 
+
+Você pode instalar via [GitHub](https://github.com/) usando:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("gabrielfranco89/sosestatistica")
+```
+## Exemplos
+
+Algumas funções úteis que vem com o pacote, como a `fancytable`:
+
+```{r}
+library(magrittr)
+library(knitr)
+library(sosestatistica)
+
+my_tab <- table(iris$Species, iris$Sepal.Length>5)
+fancytable(my_tab) %>% kable()
+```
+
