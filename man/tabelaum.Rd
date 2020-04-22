@@ -4,7 +4,7 @@
 \alias{tabelaum}
 \title{Create big table for reports}
 \usage{
-tabelaum(dep_var, list_cont = NULL, list_cat = NULL, data)
+tabelaum(dep_var, list_cont = NULL, list_cat = NULL, paired = FALSE, data)
 }
 \arguments{
 \item{data}{}
@@ -20,5 +20,9 @@ tabelaum(dep_var = "vs",
 list_cont=c("mpg","cyl"),
 list_cat = "am",
 data = mtcars)
+
+tabelaum(dep_var = "Species",
+         list_cont=c(1:4),
+         data=iris)
 
 }

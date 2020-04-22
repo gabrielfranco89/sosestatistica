@@ -15,6 +15,10 @@
 #' list_cat = "am",
 #' data = mtcars)
 #'
+#' tabelaum(dep_var = "Species",
+#'          list_cont=c(1:4),
+#'          data=iris)
+#'
 tabelaum <- function(dep_var,
                      list_cont=NULL,
                      list_cat=NULL,
@@ -40,7 +44,13 @@ tabelaum <- function(dep_var,
                               sep="")) %>%
         select(y,med_dp) %>%
         spread(y,med_dp)
-      stat$p = round(t.test(x$Valor~x$y, paired = paired)$p.value,4)
+      if(length(unique(data[[dep_var]]))==2){
+        stat$p = round(t.test(x$Valor~x$y, paired = paired)$p.value,4)
+      } else {
+        if(paired) stop("Não dá pra fazer pareado e ANOVA aqui...")
+        my_aov = anova(lm(x$Valor~x$y))
+        stat$p = my_aov$`Pr(>F)`[1]
+      }
       stat$p = as.character(ifelse(stat$p<0.0001, "<0.0001", stat$p))
       stat <- cbind(valor = "méd (d.p.)",stat)
       stat
