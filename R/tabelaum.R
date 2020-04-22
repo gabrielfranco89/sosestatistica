@@ -23,6 +23,7 @@ tabelaum <- function(dep_var,
                      list_cont=NULL,
                      list_cat=NULL,
                      paired=FALSE,
+                     just_expl=FALSE,
                      data){
   cat_dd = cont_dd = NULL
   ## continous
@@ -44,14 +45,15 @@ tabelaum <- function(dep_var,
                               sep="")) %>%
         select(y,med_dp) %>%
         spread(y,med_dp)
-      if(length(unique(data[[dep_var]]))==2){
-        stat$p = round(t.test(x$Valor~x$y, paired = paired)$p.value,4)
-      } else {
-        if(paired) stop("Não dá pra fazer pareado e ANOVA aqui...")
-        my_aov = anova(lm(x$Valor~x$y))
-        stat$p = my_aov$`Pr(>F)`[1]
+      if(!just_expl){
+        if(length(unique(data[[dep_var]]))==2){
+          stat$p = round(t.test(x$Valor~x$y, paired = paired)$p.value,4)
+        } else {
+          if(paired) stop("Não dá pra fazer pareado e ANOVA aqui...")
+          stat$p = try(round(anova(lm(x$Valor~x$y))$`Pr(>F)`[1],4))
+        }
+        stat$p = as.character(ifelse(stat$p<0.0001, "<0.0001", stat$p))
       }
-      stat$p = as.character(ifelse(stat$p<0.0001, "<0.0001", stat$p))
       stat <- cbind(valor = "méd (d.p.)",stat)
       stat
     })
@@ -66,15 +68,17 @@ tabelaum <- function(dep_var,
       split(.$Var)
     tmp <- lapply(dd2,function(x){
       tab <- with(x,table(Valor, y))
-      p <- ifelse(all(tab>4),
-                  chisq.test(tab)$p.value,
-                  fisher.test(tab)$p.value)
-      p <- ifelse(p<0.0001, "<0.0001", round(p,4))
-      p <- as.character(p)
+      if(!just_expl){
+        p <- try(ifelse(all(tab>4),
+                    chisq.test(tab)$p.value,
+                    fisher.test(tab)$p.value))
+        p <- try(ifelse(p<0.0001, "<0.0001", round(p,4)))
+        p <- as.character(p)
+      }
       cat_dd <- cbind(var = x$Var[1],
                       valor = rownames(tab),
-                      fancytable(tab),
-                      p)
+                      fancytable(tab))
+      if(!just_expl) cat_dd <- cbind(cat_dd, p)
       cat_dd
     })
     cat_dd <- do.call(rbind,tmp)
