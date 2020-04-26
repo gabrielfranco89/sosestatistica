@@ -4,7 +4,15 @@
 \alias{tabelaum}
 \title{Create big table for reports}
 \usage{
-tabelaum(dep_var, list_cont = NULL, list_cat = NULL, paired = FALSE, data)
+tabelaum(
+  dep_var,
+  list_cont = NULL,
+  list_cat = NULL,
+  paired = FALSE,
+  just_expl = FALSE,
+  trunc_p = FALSE,
+  data
+)
 }
 \arguments{
 \item{data}{}

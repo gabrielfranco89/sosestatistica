@@ -6,7 +6,9 @@
 #' @param data
 #'
 #' @return
-#' @import tidyverse
+#' @import magrittr
+#' @import tidyr
+#' @import dplyr
 #' @export
 #'
 #' @examples
@@ -24,6 +26,7 @@ tabelaum <- function(dep_var,
                      list_cat=NULL,
                      paired=FALSE,
                      just_expl=FALSE,
+                     trunc_p = FALSE,
                      data){
   cat_dd = cont_dd = NULL
   ## continous
@@ -52,7 +55,8 @@ tabelaum <- function(dep_var,
           if(paired) stop("Não dá pra fazer pareado e ANOVA aqui...")
           stat$p = try(round(anova(lm(x$Valor~x$y))$`Pr(>F)`[1],4))
         }
-        stat$p = as.character(ifelse(stat$p<0.0001, "<0.0001", stat$p))
+        if(trunc_p)
+          stat$p = as.character(ifelse(stat$p<0.0001, "<0.0001", stat$p))
       }
       stat <- cbind(valor = "méd (d.p.)",stat)
       stat
@@ -72,20 +76,24 @@ tabelaum <- function(dep_var,
         p <- try(ifelse(all(tab>4),
                     chisq.test(tab)$p.value,
                     fisher.test(tab)$p.value))
-        p <- try(ifelse(p<0.0001, "<0.0001", round(p,4)))
-        p <- as.character(p)
+        if(trunc_p){
+          p <- try(ifelse(p<0.0001, "<0.0001", round(p,4)))
+          p <- as.character(p)
+        }
       }
       cat_dd <- cbind(var = x$Var[1],
                       valor = rownames(tab),
                       fancytable(tab))
-      if(!just_expl) cat_dd <- cbind(cat_dd, p)
+      cat_dd <- as.data.frame(cat_dd)
+      if(!just_expl) cat_dd$p <- p
       cat_dd
     })
     cat_dd <- do.call(rbind,tmp)
   }
   ans <- rbind(cat_dd,cont_dd)
   rownames(ans) <- NULL
-  ans
+#  colnames(ans)[-c(1:2,ncol(ans))] <- levels(as.factor(data[[dep_var]]))
+  as.data.frame(ans)
 }
 
 
